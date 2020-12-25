@@ -7,5 +7,5 @@ Creating a basic contact info page
 Creating a basic calculator app
 ### [Assignment 3](https://github.com/Nashiria/Flutter/tree/main/Assignment%203)
 Creating a quiz app
-### [Assignment 2](https://github.com/Nashiria/Flutter/tree/main/Assignment%204)
+### [Assignment 4](https://github.com/Nashiria/Flutter/tree/main/Assignment%204)
 Creating a quiz app using opentdb
