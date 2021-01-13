@@ -9,3 +9,5 @@ Creating a basic calculator app
 Creating a quiz app
 ### [Assignment 4](https://github.com/Nashiria/Flutter/tree/main/Assignment%204)
 Creating a quiz app using opentdb
+### [Assignment 5](https://github.com/Nashiria/Flutter/tree/main/Assignment%205)
+ToDo App
