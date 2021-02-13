@@ -462,7 +462,7 @@ class Prediction {
     awayTeam.teamName=result.awayTeam;
     if(currentLeague.Contains(homeTeam.teamName)){homeTeam=currentLeague.Teams[currentLeague.getTeamID(homeTeam.teamName)];}
     if(currentLeague.Contains(awayTeam.teamName)){awayTeam=currentLeague.Teams[currentLeague.getTeamID(awayTeam.teamName)];}
-    if (currentLeague.teamNames.contains(homeTeam.teamName)==false){homeTeam.id=currentLeague.leagueSize;currentLeague.addTeam(homeTeam);}
+    if (currentLeague.teamNames.contains(homeTeam.teamName)==false){homeTeam.id=currentLeague.leagueSize;homeTeam.logodir="assets/"+homeTeam.teamName+".png";currentLeague.addTeam(homeTeam);}
     if (currentLeague.teamNames.contains(awayTeam.teamName)==false){awayTeam.id=currentLeague.leagueSize;currentLeague.addTeam(awayTeam);}
     int hometeamID = currentLeague.getTeamID(result.homeTeam);
     int awayteamID = currentLeague.getTeamID(result.awayTeam);
@@ -635,7 +635,7 @@ class Prediction {
   }
   void SimulateLeague(){
     CurrentLeague=new League();
-    Accuracy acc=new Accuracy("",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,randomKey()).newAcc();
+    Accuracy acc=new Accuracy("",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,this.key);
     acc.key=key;
     CurrentLeague.leagueName=Matches[0].League;
     CurrentLeague.season=Matches[0].Year;

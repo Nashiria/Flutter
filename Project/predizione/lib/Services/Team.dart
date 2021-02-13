@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 class Team {
   int id;
   String  teamName;
@@ -25,6 +27,7 @@ class Team {
   int homeConcede=0;
   int awayConcede=0;
   int leaguePoints=0;
+  String logodir;
   double elo=1100;
   int points=0;
   Team NewTeam(){
@@ -57,6 +60,7 @@ class Team {
     newTeam.leaguePoints=0;
     newTeam.elo=1100;
     newTeam.points=0;
+    newTeam.logodir="";
     return newTeam;
   }
 

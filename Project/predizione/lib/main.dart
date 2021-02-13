@@ -56,12 +56,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void initState() {
     super.initState();
+    Prediction pd=new Prediction();
+    database db=new database();
+    pd=db.loadDatabase();
+    pd=db.matchList(pd, "Mahalle Ligi", 2020);
+
+    pd.key=pd.findMaxAcc("Mahalle Ligi", 2020).key;
+
+    pd.SimulateLeague();
+    for(int i=0;i<pd.CurrentLeague.Teams.length;i++){
+      print(pd.CurrentLeague.Teams[i].teamName);
+
+    }
   }
   void _incrementCounter() {
     setState(() {
-      Prediction pd= database().matchList(database().loadDatabase(), "Premier League", 2020);
-      pd.key= Prediction().randomKey();
-      pd.findBetterKey();
+
       _counter++;
     });
   }
