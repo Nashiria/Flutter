@@ -1,5 +1,6 @@
 
 
+import 'package:flutter/cupertino.dart';
 import 'package:predizione/Services/database.dart';
 
 import 'Accuracy.dart';
@@ -644,6 +645,22 @@ class Prediction {
       m=predictMatch(m, key);
       updateMatch(CurrentLeague, m);
     }
+    List<Team> Templist=new List<Team>();
+    int teamcount=CurrentLeague.Teams.length;
+
+    while(Templist.length!=teamcount){
+    int indexofmaxteam=0;
+    int valueofmaxteam=0;
+    for(int i=0;i<CurrentLeague.Teams.length;i++){
+      CurrentLeague.Teams[i].points=3*CurrentLeague.Teams[i].win+CurrentLeague.Teams[i].draws;
+      int valueofcurrentteam=1000*(CurrentLeague.Teams[i].points)+(CurrentLeague.Teams[i].totalGoals-CurrentLeague.Teams[i].totalConcede);
+      if(valueofcurrentteam>valueofmaxteam){valueofmaxteam=valueofcurrentteam;indexofmaxteam=i;}
+
+    }
+    Templist.add(CurrentLeague.Teams[indexofmaxteam]);
+    CurrentLeague.Teams.removeAt(indexofmaxteam);
+    }
+    CurrentLeague.Teams=Templist;
     acc=giveAccuracy(CurrentLeague, key);
     printkeyAccuracy(acc);
     database sq=new database();

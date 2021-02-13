@@ -8,7 +8,7 @@ import 'League.dart';
 import 'Odd.dart';
 import 'Prediction.dart';
 import 'Team.dart';
-
+import 'dart:math';
 class database {
 
 
@@ -18,7 +18,7 @@ class database {
     if(s=="D"){return Result.D;}
     else{return Result.A;}
   }
-  Prediction matchList(Prediction pd,String League, int Year){
+  Prediction matchList(Prediction pd,int start,int end){
     List<Match> Matches=new List<Match>();
     Matches.add(Match(2020,'Mahalle Ligi','Türkiye',1,'Hedefspor','Tankspor',2,0,rfromS('H')));
     Matches.add(Match(2020,'Mahalle Ligi','Türkiye',1,'Altinsaray','Parlakspor',0,2,rfromS('A')));
@@ -326,6 +326,22 @@ class database {
     Matches.add(Match(2020,'Mahalle Ligi','Türkiye',1,'Kumspor','Halterspor',0,0,rfromS('F')));
     Matches.add(Match(2020,'Mahalle Ligi','Türkiye',1,'Peynirdibi','Kurtspor',0,0,rfromS('F')));
     Matches.add(Match(2020,'Mahalle Ligi','Türkiye',1,'Tankspor','Buzspor',0,0,rfromS('F')));
+    int teamcount=0;
+    if(Matches.length==24*23){teamcount=24;}
+    if(Matches.length==23*22){teamcount=23;}
+    if(Matches.length==22*21){teamcount=22;}
+    if(Matches.length==21*20){teamcount=21;}
+    if(Matches.length==20*19){teamcount=20;}
+    if(Matches.length==19*18){teamcount=19;}
+    if(Matches.length==18*17){teamcount=18;}
+    if(Matches.length==17*16){teamcount=17;}
+    if(Matches.length==16*15){teamcount=16;}
+
+    int weeklymatch=(teamcount/2).round();
+    int matchesplayed=end*weeklymatch;
+    if(matchesplayed>Matches.length){matchesplayed=Matches.length;}
+    Matches=Matches.sublist(start*weeklymatch,matchesplayed);
+    print(teamcount.toString()+" "+Matches.length.toString());
     pd.Matches=Matches;
     print(pd.Matches.length.toString()+" Matches loaded..");
     return pd;
@@ -430,8 +446,11 @@ class database {
   return Odds;
 
   }
-  void uploadStandings(League a){for(int i=0;i<a.Teams.length;i++){print(i.toString()+" "+a.Teams[i].teamName+" "+a.Teams[i].totalMatch.toString()+" "+a.Teams[i].points.toString());}}
-  void uploadResults(League a){for(int i=0;i<a.Results.length;i++){print(i.toString()+" "+a.Results[i].homeTeam+" "+a.Results[i].awayTeam+" "+(a.Results[i].result==a.Results[i].machinePredict).toString());}}
+  void uploadStandings(League a){//for(int i=0;i<a.Teams.length;i++){print(i.toString()+" "+a.Teams[i].teamName+" "+a.Teams[i].totalMatch.toString()+" "+a.Teams[i].points.toString());}
+    }
+  void uploadResults(League a){
+    //for(int i=0;i<a.Results.length;i++){print(i.toString()+" "+a.Results[i].homeTeam+" "+a.Results[i].awayTeam+" "+(a.Results[i].result==a.Results[i].machinePredict).toString());}
+    }
   void uploadAccuracy(Accuracy acc){}
   List<Accuracy> keyList(){
     List<Accuracy> wk=new List<Accuracy>();

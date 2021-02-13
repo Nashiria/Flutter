@@ -32,7 +32,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  circular_bottom_navigation: ^1.0.1
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -45,8 +45,30 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_ham.jpeg
+  assets:
+     - assets/Altinsaray.png
+     - assets/Buzspor.png
+     - assets/Denizspor.png
+     - assets/Deredibi.png
+     - assets/Eskikapi.png
+     - assets/background2.jpg
+     - assets/Halterspor.png
+     - assets/Hedefspor.png
+     - assets/Kumspor.png
+     - assets/Kurtspor.png
+     - assets/Nehirdibi.png
+     - assets/Odunhane.png
+     - assets/Parlakspor.png
+     - assets/Peynirdibi.png
+     - assets/Portakalspor.png
+     - assets/Profile.jpg
+     - assets/Tankspor.png
+     - assets/Tarimspor.png
+     - assets/Tophane.png
+     - assets/Totemspor.png
+     - assets/Villadibi.png
+     - assets/Zarhane.png
+     - assets/background.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

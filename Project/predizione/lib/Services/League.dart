@@ -24,9 +24,13 @@ class League {
 
   }
   int getTeamID(String teamName){
-    return teamNames.indexOf(teamName);
+    for(int i=0;i<Teams.length;i++){
+      if(teamName==Teams[i].teamName){return i;}
+
+
+    }
   }
-  void addTeam(Team newTeam){teamNames.add(newTeam.teamName);newTeam.id=leagueSize;leagueSize+=1;Teams.add(newTeam);}//System.out.println(Teams.get(leagueSize-1).teamName);
+  void addTeam(Team newTeam){teamNames.add(newTeam.teamName);newTeam.id=leagueSize;leagueSize+=1;newTeam.logodir="assets/"+newTeam.teamName+".png";;Teams.add(newTeam);}//System.out.println(Teams.get(leagueSize-1).teamName);
 
   void SetTeam(Team team){
 
@@ -39,7 +43,15 @@ class League {
     }
 
   }
+ int getTeamIndex(Team team){
+    for(int i=0;i<Teams.length;i++){
+      if(team.teamName==Teams[i].teamName){return i;}
 
+
+    }
+
+
+ }
   void printTeams(){for(int i=0;i<Teams.length;i++){print(Teams[i].teamName);}}
 
 
