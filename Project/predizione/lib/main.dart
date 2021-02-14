@@ -1,20 +1,40 @@
 import 'package:flutter/material.dart';
 import 'Screens/MainScreen.dart';
+import 'Services/Prediction.dart';
+import 'Services/database.dart';
 void main() {
+
   runApp(MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
   @override
+
   Widget build(BuildContext context) {
+    Prediction pd=new Prediction();
+    database db=new database();
+    pd=database().loadDatabase();
+    pd=database().matchList(pd,0,50);
+    pd.key=pd.findMaxAcc("Mahalle Ligi", 2020).key;
+    pd.SimulateLeague();
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+
+          routes: {
+            MainScreen.routeName: (context) => MainScreen(),
+          },
+
+      home: Builder(
+
+        builder: (context) => Center(
+          child: RaisedButton(
+            child: Text("Start"),
+            onPressed: () => Navigator.pushNamed(context, MainScreen.routeName,arguments: pd),
+          ),
+        ),
       ),
-      home: MainScreen(),
     );
+
   }
 }

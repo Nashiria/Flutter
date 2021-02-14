@@ -418,7 +418,10 @@ class Prediction {
   }
   double perc(double currD) {return ((currD * 100.0) / 100.0).roundToDouble();}
   void printkeyAccuracy(Accuracy curAccuracy) {
-    print("Accuracy Ratios: Total:%" + perc(curAccuracy.resultRatio * 100.0).toString() + " H:%" + perc(curAccuracy.homeRatio * 100.0).toString()  + " D:%" + perc(curAccuracy.drawRatio * 100.0).toString()  + " A:%" + perc(curAccuracy.awayRatio * 100.0).toString()  + " H:" + perc(curAccuracy.key.home).toString()  + " D:" + perc(curAccuracy.key.draw).toString()  + " A:" + perc(curAccuracy.key.away).toString() );
+   // print("Accuracy Ratios: Total:%" + perc(curAccuracy.resultRatio * 100.0).toString() + " H:%" + perc(curAccuracy.homeRatio * 100.0).toString()  + " D:%" + perc(curAccuracy.drawRatio * 100.0).toString()  + " A:%" + perc(curAccuracy.awayRatio * 100.0).toString()  + " H:" + perc(curAccuracy.key.home).toString()  + " D:" + perc(curAccuracy.key.draw).toString()  + " A:" + perc(curAccuracy.key.away).toString() );
+  }
+  String StringAcc(Accuracy curAccuracy) {
+    return ("Accuracy Ratios: Total:%" + perc(curAccuracy.resultRatio * 100.0).toString() + " H:%" + perc(curAccuracy.homeRatio * 100.0).toString()  + " D:%" + perc(curAccuracy.drawRatio * 100.0).toString()  + " A:%" + perc(curAccuracy.awayRatio * 100.0).toString()+" HG:%"+perc(curAccuracy.homeGoalRatio * 100.0).toString()+" AG:%"+perc(curAccuracy.awayGoalRatio * 100.0).toString() );
   }
   double calculateElo(Team t1, Team t2, Result r, int team) {
     double win = 1.0;
@@ -552,7 +555,7 @@ class Prediction {
       if(Keylist[i].Season==Year && Keylist[i].league==(League) && Keylist[i].resultRatio>max){max=Keylist[i].resultRatio; acc=Keylist[i];}
 
     }
-    print("Maximum accuracy for "+League+" at "+Year.toString()+" is %"+perc(max*100).toString());
+
     return acc;
   }
 
@@ -564,7 +567,7 @@ class Prediction {
       if(Keylist[i].Season==Year && Keylist[i].league==(League)){acc=Keylist[i];returnList.add(acc);}
 
     }
-    print("Maximum accuracy for "+League+" at "+Year.toString()+" is %"+perc(max*100).toString());
+
     return returnList;
   }
   void printleagues(){
@@ -662,7 +665,7 @@ class Prediction {
     }
     CurrentLeague.Teams=Templist;
     acc=giveAccuracy(CurrentLeague, key);
-    printkeyAccuracy(acc);
+
     database sq=new database();
     sq.uploadAccuracy(acc);
     sq.uploadResults(CurrentLeague);

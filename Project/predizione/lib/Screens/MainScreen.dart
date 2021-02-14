@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:circular_bottom_navigation/circular_bottom_navigation.dart';
 import 'package:circular_bottom_navigation/tab_item.dart';
+import 'package:predizione/Services/Accuracy.dart';
 import 'package:predizione/Services/Match.dart';
 import 'package:predizione/Services/Prediction.dart';
 import 'package:predizione/Services/Team.dart';
@@ -9,22 +10,22 @@ import 'package:predizione/Services/database.dart';
 
 void main() {
   runApp(MainScreen());
-
-
 }
 
 class MainScreen extends StatefulWidget {
   @override
+  static const routeName = '/extractArguments';
   _MainScreenState createState() => _MainScreenState();
+
 }
 
 class _MainScreenState extends State<MainScreen> {
 
   List<TabItem> tabItems = List.of([
-    new TabItem(Icons.home, "Home", Colors.blue),
+    new TabItem(Icons.home, "Home", Colors.deepPurple),
     new TabItem(Icons.sports_soccer_outlined, "Matches", Colors.black),
-    new TabItem(Icons.ballot_outlined, "League", Colors.red),
-    new TabItem(Icons.settings_outlined, "Info", Colors.cyan),
+    new TabItem(Icons.ballot_outlined, "League", Colors.greenAccent),
+    new TabItem(Icons.title, "Teams", Colors.yellow.shade700),
     new TabItem(Icons.contact_mail_outlined, "Dağhan", Colors.cyan),
   ]);
 
@@ -41,7 +42,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+   final Prediction pd = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
@@ -50,7 +51,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: Stack(
         children: <Widget>[
-          Padding(child: bodyContainer(), padding: EdgeInsets.only(bottom: 60),),
+          Padding(child: bodyContainer(context), padding: EdgeInsets.only(bottom: 60),),
           Align(alignment: Alignment.bottomCenter, child: bottomNav())
         ],
       ),
@@ -67,33 +68,33 @@ class _MainScreenState extends State<MainScreen> {
 
   }
 
-  Widget bodyContainer() {
-
-    Prediction pd=new Prediction();
-    database db=new database();
+  Widget bodyContainer(BuildContext context) {
+    Prediction pd= ModalRoute.of(context).settings.arguments;
     List<Match> teamMatches=new List<Match>();
     Team currentTeam=new Team();
     final rows = <TableRow>[];
     final resultsrow = <Container>[];
     final teamcont = <Container>[];
+    int cgoalcount=0;
+    int wgoalcount=0;
     int page=index%10;
     int team=(((index%1000)-page)/10).toInt();
+    int playedmatchcount=0;
     int week=((index-(page+team))/1000).toInt();
     if(week==0){week=1;}
-    String slogan;
     if(page==0 || page==1 || page==2 ||page==3){
 
-      pd=database().loadDatabase();
-      pd=database().matchList(pd,0,50);
+
 
       if(page==2){pd=database().matchList(pd,0,week);}
       List<Match> Results=new List<Match>();
-      pd.key=pd.findMaxAcc("Mahalle Ligi", 2020).key;
-      pd.SimulateLeague();
       currentTeam=pd.CurrentLeague.Teams[team];
-
       for(int i=0;i<pd.CurrentLeague.Results.length;i++){
         Match m=pd.CurrentLeague.Results[i];
+        m.CorrectGoalCount=(m.machineAwayScore+m.machineHomeScore)==(m.homeScore+m.awayScore);
+        if(m.CorrectGoalCount && m.result!=Result.EMPTY){cgoalcount+=1;}
+        if(m.CorrectGoalCount == false&& m.result!=Result.EMPTY){wgoalcount+=1;}
+        if(m.result!=Result.EMPTY){playedmatchcount+=1;}
         if(m.homeTeam==currentTeam.teamName || m.awayTeam==currentTeam.teamName){
           teamMatches.add(m);
         }
@@ -102,7 +103,7 @@ class _MainScreenState extends State<MainScreen> {
       }
 
       //if(page==1){ Results=pd.CurrentLeague.Results.sublist((pd.CurrentLeague.Teams.length/2*(week-1)).round(),(pd.CurrentLeague.Teams.length/2*(week)).round());}
-      print("Output:"+index.toString()+" Index:"+(page).toString()+" Team:"+team.toString()+" Week:"+week.toString());
+      //print("Output:"+index.toString()+" Index:"+(page).toString()+" Team:"+team.toString()+" Week:"+week.toString());
       Results=pd.CurrentLeague.Results;
       rows.add(TableRow( children: [
         Column(children:[Text(
@@ -197,127 +198,68 @@ class _MainScreenState extends State<MainScreen> {
 
       for(int i=0;i<Results.length;i++){      if(Results[i].result!=Result.EMPTY) {
         resultsrow.add(Container(
-          height: 140,
-          color: Colors.white,
-          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              // Home team logo
-              SizedBox(
-                width: 110,
-                height: 110,
-                child:
-                FlatButton(
-                  onPressed: () {
-                    int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)])*10+50*10000;
-                    setState(() {
-                      index=indexa;
-                    });
-                  },
-                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)].logodir),
-                ),
+            height: 140,
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              FlatButton(
+
+                onPressed: () {
+                  int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)])*10+50*10000;
+                  setState(() {
+                    index=indexa;
+                  });
+                },
+                child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)].logodir,width: 110),
 
               ),
-            ]),
-            Padding(padding: EdgeInsets.all(4)),
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              // Propagate data down to the widgets that need it
-              // The Highlights text has a rounded border
-              Container(
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Color(0xFFB4B4B4)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 18),
-                child: Text(
-                  (Results[i].homeScore.toString()+"-"+Results[i].awayScore.toString()),
-                  style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
-                ),
+              Text(
+                (Results[i].homeScore.toString()+"-"+Results[i].awayScore.toString()),
+                style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
+              ), FlatButton(
+                onPressed: () {
+                  int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)])*10+50*10000;
+                  setState(() {
+                    index=indexa;
+                  });
+                },
+                child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)].logodir,width: 110,),
               ),
-            ]),
-            Padding(padding: EdgeInsets.all(4)),
-            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              // Home team logo
-              SizedBox(
-                width: 110,
-                height: 110,
-                child:
-                FlatButton(
-                  onPressed: () {
-                    int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)])*10+50*10000;
-                    setState(() {
-                      index=indexa;
-                    });
-                  },
-                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)].logodir),
-                ),
 
-              ),
-            ]),
-          ]),
-        ));
+
+            ])));
       }else{
         resultsrow.add(Container(
-          height: 140,
-          color: Colors.white,
-          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              // Home team logo
-              SizedBox(
-                width: 110,
-                height: 110,
-                child:
-                FlatButton(
-                  onPressed: () {
-                    int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)])*10+50*10000;
-                    setState(() {
-                      index=indexa;
-                    });
-                  },
-                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)].logodir),
-                ),
+            height: 140,
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              FlatButton(
+
+                onPressed: () {
+                  int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)])*10+50*10000;
+                  setState(() {
+                    index=indexa;
+                  });
+                },
+                child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].homeTeam)].logodir,width: 110),
 
               ),
-            ]),
-            Padding(padding: EdgeInsets.all(4)),
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              // Propagate data down to the widgets that need it
-              // The Highlights text has a rounded border
-              Container(
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Color(0xFFB4B4B4)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 18),
-                child: Text(
-                  (Results[i].machineHomeScore.toString()+"-"+Results[i].machineAwayScore.toString()),
-                  style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
-                ),
+              Text(
+                (Results[i].machineHomeScore.toString()+"-"+Results[i].machineAwayScore.toString()),
+                style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
+              ), FlatButton(
+                onPressed: () {
+                  int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)])*10+50*10000;
+                  setState(() {
+                    index=indexa;
+                  });
+                },
+                child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)].logodir,width: 110,),
               ),
-            ]),
-            Padding(padding: EdgeInsets.all(4)),
-            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              // Home team logo
-              SizedBox(
-                width: 110,
-                height: 110,
-                child:
-                FlatButton(
-                  onPressed: () {
-                    print('I got clicked');
-                  },
-                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)].logodir),
-                ),
 
-              ),
-            ]),
-          ]),
-        ));
+
+            ])));
       }}}
     String PageName="";
 
@@ -336,12 +278,63 @@ class _MainScreenState extends State<MainScreen> {
         PageName="Teams";
         break;
       case 4:
-        PageName="Info";
-        break;
-      case 5:
         PageName="Dağhan";
         break;
     }
+    if(PageName=="League"){
+      List<Team> l=pd.CurrentLeague.Teams;
+      final ct = <Container>[];
+      for(int i=0;i<l.length;i++){
+        Team t=l[i];
+        ct.add(Container(
+
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+              color: Colors.green.shade100,
+            ),
+            height: 50,
+            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+              Text(
+                (i+1).toString(),
+                style: TextStyle(fontFamily: 'OpenSans', fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+          ButtonTheme(
+            padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), //adds padding inside the button
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, //limits the touch area to the button area
+            minWidth: 45, //wraps child's width
+            height: 45, //wraps child's height
+            child: FlatButton(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onPressed: () {
+                int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[i])*10+50*10000;
+                setState(() {
+                  index=indexa;
+                });
+              },
+              child: Image.asset(pd.CurrentLeague.Teams[i].logodir,width: 25),
+
+            ), //your original button
+          ),
+
+              Text(
+                "Total:"+t.totalMatch.toString()+" Win:"+t.win.toString()+" Draw:"+t.draws.toString()+" Lose:"+t.loses.toString()+" GS:"+t.totalGoals.toString()+" GC:"+t.totalConcede.toString()+" Average:"+(t.totalGoals-t.totalConcede).toString()+" Points:"+t.points.toString(),
+                style: TextStyle(fontFamily: 'OpenSans', fontSize: 10, fontWeight: FontWeight.w600),
+              ),
+
+
+            ])));
+
+      }
+
+
+
+      return Center(
+      child: new ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.all(20.0),
+          children: ct
+      ),
+    );}
     if(PageName=="Matches"){ return Center(
       child: new ListView(
           shrinkWrap: true,
@@ -350,133 +343,153 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
     }
+    if(PageName=="Home"){
+      Accuracy ac=pd.giveAccuracy(pd.CurrentLeague,pd.key);
+      const double fonts=35.0;
 
+      return Container(
+
+        alignment: Alignment.topCenter, padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+          child:  new Column(children:[
+            Text(
+              "Accuracy Ratios:",
+              style: const TextStyle(
+                  color: Colors.black,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  fontSize: fonts
+              )),
+            Text(
+                "Total: %"+pd.perc(ac.resultRatio*100).toString(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: fonts
+                )),
+            Text(
+                "Home Wins: %"+pd.perc(ac.homeRatio*100).toString(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: fonts
+                )),
+            Text(
+                "Draw Matches: %"+pd.perc(ac.drawRatio*100).toString(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: fonts
+                )),
+            Text(
+                "Away Wins: %"+pd.perc(ac.awayRatio*100).toString(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: fonts
+                )),
+            Text(
+                "Home Goals: %"+pd.perc(ac.homeGoalRatio*100).toString(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: fonts
+                )),
+            Text(
+                "Away Goals: %"+pd.perc(ac.awayGoalRatio*100).toString(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: fonts
+                )),
+            Text(
+                "Goal Count: %"+pd.perc(100*cgoalcount/(cgoalcount+wgoalcount)).toString(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: fonts
+                )),
+
+
+
+          ]));
+
+
+    }
     if(PageName=="Teams"){
       for(int i=0;i<teamMatches.length;i++){
         Match m=teamMatches[i];
         if(m.result!=Result.EMPTY) {
           teamcont.add(Container(
-            height: 140,
-            color: Colors.white,
-            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                // Home team logo
-                SizedBox(
-                  width: 110,
-                  height: 110,
-                  child:
-                  FlatButton(
-                    onPressed: () {
-                      int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)])*10+50*10000;
-                      setState(() {
-                        index=indexa;
-                      });
-                    },
-                    child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)].logodir),
-                  ),
+              height: 140,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                FlatButton(
+
+                  onPressed: () {
+                    int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)])*10+50*10000;
+                    setState(() {
+                      index=indexa;
+                    });
+                  },
+                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)].logodir,width: 110),
 
                 ),
-              ]),
-              Padding(padding: EdgeInsets.all(4)),
-              Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                // Propagate data down to the widgets that need it
-                // The Highlights text has a rounded border
-                Container(
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(color: Color(0xFFB4B4B4)),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 18),
-                  child: Text(
-                    (m.homeScore.toString()+"-"+m.awayScore.toString()),
-                    style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
-                  ),
+                Text(
+                  (m.homeScore.toString()+"-"+m.awayScore.toString()),
+                  style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
+                ), FlatButton(
+                  onPressed: () {
+                    int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.awayTeam)])*10+50*10000;
+                    setState(() {
+                      index=indexa;
+                    });
+                  },
+                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.awayTeam)].logodir,width: 110,),
                 ),
-              ]),
-              Padding(padding: EdgeInsets.all(4)),
-              Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                // Home team logo
-                SizedBox(
-                  width: 110,
-                  height: 110,
-                  child:
-                  FlatButton(
-                    onPressed: () {
-                      int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.awayTeam)])*10+50*10000;
-                      setState(() {
-                        index=indexa;
-                      });
-                    },
-                    child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.awayTeam)].logodir),
-                  ),
 
-                ),
-              ]),
-            ]),
-          ));
+
+              ])));
+
         }else{
-          resultsrow.add(Container(
-            height: 140,
-            color: Colors.white,
-            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                // Home team logo
-                SizedBox(
-                  width: 110,
-                  height: 110,
-                  child:
-                  FlatButton(
-                    onPressed: () {
-                      int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)])*10+50*10000;
-                      setState(() {
-                        index=indexa;
-                      });
-                    },
-                    child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)].logodir),
-                  ),
+          teamcont.add(Container(
+              height: 140,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                FlatButton(
+
+                  onPressed: () {
+                    int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)])*10+50*10000;
+                    setState(() {
+                      index=indexa;
+                    });
+                  },
+                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.homeTeam)].logodir,width: 110),
 
                 ),
-              ]),
-              Padding(padding: EdgeInsets.all(4)),
-              Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                // Propagate data down to the widgets that need it
-                // The Highlights text has a rounded border
-                Container(
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(color: Color(0xFFB4B4B4)),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 18),
-                  child: Text(
-                    (m.machineHomeScore.toString()+"-"+m.machineAwayScore.toString()),
-                    style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
-                  ),
+                Text(
+                  (m.machineHomeScore.toString()+"-"+m.machineAwayScore.toString()),
+                  style: TextStyle(fontFamily: 'OpenSans', fontSize: 25, fontWeight: FontWeight.w600),
+                ), FlatButton(
+                  onPressed: () {
+                    int indexa=3+pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.awayTeam)])*10+50*10000;
+                    setState(() {
+                      index=indexa;
+                    });
+                  },
+                  child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.awayTeam)].logodir,width: 110,),
                 ),
-              ]),
-              Padding(padding: EdgeInsets.all(4)),
-              Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                // Home team logo
-                SizedBox(
-                  width: 110,
-                  height: 110,
-                  child:
-                  FlatButton(
-                    onPressed: () {
-                      print('I got clicked');
-                    },
-                    child: Image.asset(pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamID(m.awayTeam)].logodir),
-                  ),
 
-                ),
-              ]),
-            ]),
-          ));
+
+              ])));
         }}
       currentTeam=pd.CurrentLeague.Teams[team];
       int teamrank=0;
@@ -574,79 +587,7 @@ class _MainScreenState extends State<MainScreen> {
 
 
     }
-    if(PageName=="League"){ return Center(
-        child: Column(children: <Widget>[
 
-          ListView(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              children: [Column(
-                children: <Widget>[
-
-                  Table(
-                    columnWidths: {
-                      0: FlexColumnWidth(1),
-                      1: FlexColumnWidth(3),
-                      2: FlexColumnWidth(1),
-                      3: FlexColumnWidth(1),
-                      4: FlexColumnWidth(1),
-                      5: FlexColumnWidth(1),
-                      6: FlexColumnWidth(1),
-                      6: FlexColumnWidth(1),
-                      7: FlexColumnWidth(1),
-                    },
-                    border: TableBorder.all(
-                      color: Colors.black,
-                      style: BorderStyle.solid,
-                      width: 1,
-
-                    ),
-                    children: rows,
-                  ),
-
-                ],
-              ),]
-          ),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,children: [
-            Container(
-              constraints: BoxConstraints(maxWidth: 100.0, minHeight: 50.0),
-              margin: EdgeInsets.all(10),
-              alignment: Alignment.centerLeft,
-              child: RaisedButton(
-                child: Text("Previous Week"),
-                onPressed:  () { setState(() {
-                  week-=1;
-                  index = (1000*week)+2;
-                });
-                },
-                color: Theme.of(context).accentColor,
-              ),
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 100.0, minHeight: 50.0),
-              margin: EdgeInsets.all(10),
-              alignment: Alignment.center,
-              child: Text("Week "+week.toString()),
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 100.0, minHeight: 50.0),
-              margin: EdgeInsets.all(10),
-              alignment: Alignment.centerRight,
-              child: RaisedButton(
-                child: Text("Next Week"),
-                onPressed:  () { setState(() {
-                  if(week<(pd.CurrentLeague.Teams.length-1)*2){week+=1;}
-
-                  index = (1000*week)+2;
-                });
-                },
-                color: Theme.of(context).accentColor,
-              ),
-            )])
-        ],
-
-        )
-    );}
     if(PageName=="Dağhan"){return Column(
 
       children: [
@@ -735,7 +676,7 @@ class _MainScreenState extends State<MainScreen> {
       tabItems,
       controller: _navigationController,
       barHeight: 60,
-      barBackgroundColor: Colors.white,
+      barBackgroundColor: Colors.redAccent,
       animationDuration: Duration(milliseconds: 300),
       selectedCallback: (int sindex) {
         setState(() {
