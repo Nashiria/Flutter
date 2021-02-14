@@ -344,7 +344,8 @@ class Prediction {
 
     for(int i = 0; i < league.Results.length; ++i) {
       Match curr = league.Results[i];
-      if (curr.result!=Result.EMPTY && curr.machinePredict!=Result.EMPTY) {
+      bool guessingstart=(i>league.Teams.length*6);
+      if(guessingstart){ if (curr.result!=Result.EMPTY && curr.machinePredict!=Result.EMPTY) {
         curr.CorrectResult = curr.machinePredict==curr.result;
         if (curr.machinePredict==Result.D) {
           ++currentAccuracy.guessedDraw;
@@ -398,7 +399,8 @@ class Prediction {
             ++currentAccuracy.wrongAway;
           }
         }
-      }
+      }}
+
     }
     currentAccuracy.totalMatch = currentAccuracy.correctResult + currentAccuracy.wrongResult;
     currentAccuracy.homeGoalRatio = currentAccuracy.correctHomeGoal / currentAccuracy.totalMatch;
@@ -416,7 +418,7 @@ class Prediction {
     currentAccuracy.league = league.leagueName;
     return currentAccuracy;
   }
-  double perc(double currD) {return ((currD * 100.0) / 100.0).roundToDouble();}
+  double perc(double currD) {return ((currD * 100.0).toInt() / 100.0);}
   void printkeyAccuracy(Accuracy curAccuracy) {
    // print("Accuracy Ratios: Total:%" + perc(curAccuracy.resultRatio * 100.0).toString() + " H:%" + perc(curAccuracy.homeRatio * 100.0).toString()  + " D:%" + perc(curAccuracy.drawRatio * 100.0).toString()  + " A:%" + perc(curAccuracy.awayRatio * 100.0).toString()  + " H:" + perc(curAccuracy.key.home).toString()  + " D:" + perc(curAccuracy.key.draw).toString()  + " A:" + perc(curAccuracy.key.away).toString() );
   }
