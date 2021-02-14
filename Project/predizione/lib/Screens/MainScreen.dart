@@ -158,78 +158,92 @@ class _MainScreenState extends State<MainScreen> {
               break;
           } }
         else if(i%2==0){background=Colors.grey.shade400;}
-
+        double hz=0;
+        double vz=20.0;
         rows.add(TableRow(decoration: BoxDecoration(color:background),children: [
-          Column(children: [
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
             Text(
               (i + 1).toString(),
               style: TextStyle(color: Colors.black),
             )
-          ]),
-          Column(children: [
-            FlatButton(
-              onPressed: () {
-                int indexa = 3 +
-                    pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[i]) *
-                        10 +
-                    50 * 10000;
-                setState(() {
-                  index = indexa;
-                });
-              },
-              child: Image.asset(pd.CurrentLeague.Teams[i].logodir, width: 50),
-            )
-          ]),
-          Column(children: [
-            Text(
-              pd.CurrentLeague.Teams[i].totalMatch.toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
-          Column(children: [
-            Text(
-              pd.CurrentLeague.Teams[i].win.toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
-          Column(children: [
-            Text(
-              pd.CurrentLeague.Teams[i].draws.toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
-          Column(children: [
-            Text(
-              pd.CurrentLeague.Teams[i].loses.toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
-          Column(children: [
-            Text(
-              pd.CurrentLeague.Teams[i].totalGoals.toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
-          Column(children: [
-            Text(
-              pd.CurrentLeague.Teams[i].totalConcede.toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
-          Column(children: [
-            Text(
-              (pd.CurrentLeague.Teams[i].totalGoals -
-                      pd.CurrentLeague.Teams[i].totalConcede)
-                  .toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
-          Column(children: [
-            Text(
-              pd.CurrentLeague.Teams[i].points.toString(),
-              style: TextStyle(color: Colors.black),
-            )
-          ]),
+          ),),
+
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: 0,horizontal:0),child:
+          FlatButton(
+            onPressed: () {
+              int indexa = 3 +
+                  pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[i]) *
+                      10 +
+                  50 * 10000;
+              setState(() {
+                index = indexa;
+              });
+            },
+            child: Image.asset(pd.CurrentLeague.Teams[i].logodir, width: 50),
+          )
+          ),),
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            pd.CurrentLeague.Teams[i].totalMatch.toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
+
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            pd.CurrentLeague.Teams[i].win.toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
+
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            pd.CurrentLeague.Teams[i].draws.toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            pd.CurrentLeague.Teams[i].loses.toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            pd.CurrentLeague.Teams[i].totalGoals.toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            pd.CurrentLeague.Teams[i].totalConcede.toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            (pd.CurrentLeague.Teams[i].totalGoals -
+                pd.CurrentLeague.Teams[i].totalConcede)
+                .toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
+          Center(child:
+          Padding(padding: EdgeInsets.symmetric(vertical: vz,horizontal:hz),child:
+          Text(
+            pd.CurrentLeague.Teams[i].points.toString(),
+            style: TextStyle(color: Colors.black),
+          )
+          ),),
         ]));
       }
 
