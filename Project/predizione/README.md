@@ -1,16 +1,7 @@
-# predizione
+# Predizione
 
-match prediction algorithm.
+Match prediction app.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+There are some paramaters for predicting match results. These parameters have different effects on results for different leagues. Predizione optimizes the key for a league matches until accuracy of the app is at maximum. After that, it can show match results, league table and other statistics.
