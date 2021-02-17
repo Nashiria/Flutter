@@ -9,6 +9,8 @@ Match prediction app.
 ![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot3.PNG)
 ![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot4.PNG)
 
+# Report
+
 ## 1-	Identification of Problem/Purpose of the Software:
 
 The global sports betting industry has market size more than 200 billion U.S. dollars in 2020. There are approximately 30.000 bettings businesses which employs more than 200.000 people. These people work to predict results and set the odds accordingly. These predictions depends on the current form of the teams, morale of the players and other various factors. In 2020 season, considering lowest return is the predictor’s prediction for result, betting companies has %52.63 accuracy on results of the Premier Leauge. This accuracy is still enough for the profit but with more accuracy it can be more profitable. Purpose of this software is to achieve these predictions without spending any human resources. Currently Predizione starts predicting after first 5 matches and has %50.87 accuracy predicting the result with makes 2 match difference from the company predicitions, %33.33 predicting the home score and %33.33 predicting the away score of the Premier League matches. Currently for legal reasons, I desinged a fake league containing fake teams with real results from a real league to check accuracy ratios.
@@ -29,7 +31,7 @@ Originally, Predizione uses MySQL database for the data inputs. But for testing 
 3.	UI generates modules from this data.
 
 
-3- Testing of the Results
+## 3- Testing of the Results
 Accuracy Ratios from bet companies and Predizione:
 
 | League Name |	Bet company |	Predizione |
