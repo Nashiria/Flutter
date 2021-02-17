@@ -20,7 +20,7 @@ Currently, Predizione uses fixtures and results of the past matches on that seas
 Originally, Predizione uses MySQL database for the data inputs. But for testing reasons, I implemented these data files inside Predizione because my MySQL server is not reachable from outside my computer. 
 
 ###  Algorithm Structure
-1.	sqlOpertions class gets the data from the MySQL server.
+1.	Database class gets the data from the MySQL server.
 2.	Predizione predicts the results from the data.
 3.	UI generates modules from this data.
 
