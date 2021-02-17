@@ -3,12 +3,6 @@
 
 Match prediction app.
 
-## Screenshots:
-![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot1.PNG)
-![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot2.PNG)
-![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot3.PNG)
-![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot4.PNG)
-
 # Report
 
 ## 1-	Identification of Problem/Purpose of the Software:
@@ -58,4 +52,9 @@ Accuracy Ratios from bet companies and Predizione:
 |Super League 1|	%52.17|	%49.25|
 
 
+## Screenshots:
+![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot1.PNG)
+![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot2.PNG)
+![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot3.PNG)
+![](https://github.com/Nashiria/Flutter/blob/main/Project/screenshots/screenshot4.PNG)
 
