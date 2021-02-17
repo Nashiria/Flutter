@@ -33,26 +33,27 @@ Originally, Predizione uses MySQL database for the data inputs. But for testing 
 Accuracy Ratios from bet companies and Predizione:
 
 | League Name |	Bet company |	Predizione |
-| :----------: || :----------: || :----------: |
+|---|---|---|
 |Premier League|	|%52.09|	|%50.87|
-|English Championship|	|%44.67	|%45.69|
-|English League 1|	|%48.79	|%45.29|
-|English League 2|	|%44.18	|%45.0|
-|English Conference|	|%51.61	|%53.76|
-|Scottish Premiership|	|%56.41	|%52.63|
-|Scottish Championship|	|%50.0	|%60.0|
-|Bundesliga|	|%48.53	|%53.75|
-|Bundesliga 2|	|%50.0	|%52.5|
-|La Liga|	|%50.73	|%52.88|
-|La Liga 2|	|%47.51	|%47.51|
-|Serie A|	|%55.5	|%49.49|
-|Serie B|	|%40.5	|%48.48|
-|Ligue 1|	|%51.98	|%50.79|
-|Ligue 2|	|%47.65	|%50.0|
-|Belgian Pro League|	|%46.66	|%44.77|
-|Eredivisie|	|%55.0	|%49.43|
-|Liga NOS|	|%57.82	|%53.57|
-|Superlig|	|%46.77	|%50.80|
-|Super League 1|	|%52.17	|%49.25|
+|English Championship|	|%44.67|	|%45.69|
+|English League 1|	|%48.79|	|%45.29|
+|English League 2|	|%44.18|	|%45.0|
+|English Conference|	|%51.61|	|%53.76|
+|Scottish Premiership|	|%56.41|	|%52.63|
+|Scottish Championship|	|%50.0|	|%60.0|
+|Bundesliga|	|%48.53|	|%53.75|
+|Bundesliga 2|	|%50.0|	|%52.5|
+|La Liga|	|%50.73|	|%52.88|
+|La Liga 2|	|%47.51|	|%47.51|
+|Serie A|	|%55.5|	|%49.49|
+|Serie B|	|%40.5|	|%48.48|
+|Ligue 1|	|%51.98|	|%50.79|
+|Ligue 2|	|%47.65|	|%50.0|
+|Belgian Pro League|	|%46.66|	|%44.77|
+|Eredivisie|	|%55.0|	|%49.43|
+|Liga NOS|	|%57.82|	|%53.57|
+|Superlig|	|%46.77|	|%50.80|
+|Super League 1|	|%52.17|	|%49.25|
+
 
 
