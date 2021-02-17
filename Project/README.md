@@ -33,6 +33,7 @@ Originally, Predizione uses MySQL database for the data inputs. But for testing 
 Accuracy Ratios from bet companies and Predizione:
 
 | League Name |	Bet company |	Predizione |
+| :----------: || :----------: || :----------: |
 |Premier League|	|%52.09|	|%50.87|
 |English Championship|	|%44.67	|%45.69|
 |English League 1|	|%48.79	|%45.29|
