@@ -44,9 +44,17 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Prediction pd = ModalRoute.of(context).settings.arguments;
+    Prediction pd = ModalRoute.of(context).settings.arguments;
     return new WillPopScope(
-      onWillPop: () async => false,
+      onWillPop:(){
+        int indexa=pd.Indexes[pd.Indexes.length-2];
+        pd.Indexes.removeLast();
+        setState(() {
+          index = indexa;
+        });
+
+
+      },
       child: new Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
@@ -83,7 +91,24 @@ class _MainScreenState extends State<MainScreen> {
       return "A";
     }
   }
-
+  String resConv(Result m) {
+    if (m==Result.D) {
+      return "Draw";
+    } else if (m==Result.H) {
+      return "Home";
+    } else if (m==Result.A) {
+      return "Away";
+    }
+   else if (m==Result.EMPTY) {
+  return "EMPTY";
+  }
+  }
+  String perc(double currD) {
+    if ((currD * 100.0).round() == double.nan || (currD * 100.0).round()==double.infinity){return "NaN";}
+    else {
+      return "%" + (100 * (currD * 100.0).round() / 100.0).toString();
+    }
+  }
   Widget bodyContainer(BuildContext context) {
     Prediction pd = ModalRoute.of(context).settings.arguments;
     List<Match> teamMatches = new List<Match>();
@@ -94,16 +119,18 @@ class _MainScreenState extends State<MainScreen> {
     int cgoalcount = 0;
     int wgoalcount = 0;
     int page = index % 10;
+    int matchid=index-page;
+    pd.Indexes.add(index);
     int team = (((index % 1000) - page) / 10).toInt();
     int playedmatchcount = 0;
     int week = ((index - (page + team)) / 1000).toInt();
+    int matchstatson=((index-page-week*1000)/10).toInt();
+    //print("Index: "+index.toString()+" Match id:"+matchid.toString()+" Week:"+week.toString()+" Team:"+team.toString()+" Page:"+page.toString()+" Match Stats:"+matchstatson.toString()+" "+(matchstatson==1).toString());
     if (week == 0) {
       week = 1;
     }
     if (page == 0 || page == 1 || page == 2 || page == 3) {
-      if (page == 2) {
-        pd = database().matchList(pd, 0, week);
-      }
+
       List<Match> Results = new List<Match>();
       currentTeam = pd.CurrentLeague.Teams[team];
       for (int i = 0; i < pd.CurrentLeague.Results.length; i++) {
@@ -248,14 +275,32 @@ class _MainScreenState extends State<MainScreen> {
       }
 
       for (int i = 0; i < Results.length; i++) {
-        if (Results[i].result != Result.EMPTY) {
-          resultsrow.add(Container(
+        int team1g=0;
+        int team2g=0;
+        Color scorecolor=Colors.black;
+        bool matchisplayed=Results[i].result != Result.EMPTY;
+        bool pdcorrect=Results[i].result==Results[i].machinePredict;
+        bool pdresultswilldisplay=(i>pd.CurrentLeague.Teams.length*3);
+        if( matchisplayed && pdcorrect && pdresultswilldisplay){scorecolor=Colors.green.shade500;}
+        else if( matchisplayed && !pdcorrect && pdresultswilldisplay){scorecolor=Colors.red.shade500;}
+        else if( !matchisplayed ){scorecolor=Colors.blue.shade500;}
+
+        if(matchisplayed){
+          team1g=Results[i].homeScore;
+          team2g=Results[i].awayScore;
+        }
+        else{
+          team1g=Results[i].machineHomeScore;
+          team2g=Results[i].machineAwayScore;
+        }
+          resultsrow.add(
+              Container(
               height: 140,
               color: Colors.white,
               padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
               child:
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FlatButton(
+                FlatButton(padding: EdgeInsets.zero,
                   onPressed: () {
                     int indexa = 3 +
                         pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
@@ -274,74 +319,26 @@ class _MainScreenState extends State<MainScreen> {
                               pd.CurrentLeague.getTeamID(Results[i].homeTeam)]
                           .logodir,
                       width: 110),
-                ),
-                Text(
-                  (Results[i].homeScore.toString() +
-                      "-" +
-                      Results[i].awayScore.toString()),
-                  style: TextStyle(
-                      fontFamily: 'OpenSans',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    int indexa = 3 +
-                        pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
-                                pd.CurrentLeague.getTeamID(
-                                    Results[i].awayTeam)]) *
-                            10 +
-                        50 * 10000;
-                    setState(() {
-                      index = indexa;
-                    });
-                  },
-                  child: Image.asset(
-                    pd
-                        .CurrentLeague
-                        .Teams[pd.CurrentLeague.getTeamID(Results[i].awayTeam)]
-                        .logodir,
-                    width: 110,
-                  ),
-                ),
-              ])));
-        } else {
-          resultsrow.add(Container(
-              height: 140,
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FlatButton(
-                  onPressed: () {
-                    int indexa = 3 +
-                        pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
-                                pd.CurrentLeague.getTeamID(
-                                    Results[i].homeTeam)]) *
-                            10 +
-                        50 * 10000;
-                    setState(() {
-                      index = indexa;
-                    });
-                  },
-                  child: Image.asset(
-                      pd
-                          .CurrentLeague
-                          .Teams[
-                              pd.CurrentLeague.getTeamID(Results[i].homeTeam)]
-                          .logodir,
-                      width: 110),
-                ),
-                Text(
-                  (Results[i].machineHomeScore.toString() +
-                      "-" +
-                      Results[i].machineAwayScore.toString()),
-                  style: TextStyle(
-                      fontFamily: 'OpenSans',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600),
-                ),
-                FlatButton(
+                ), FlatButton(padding: EdgeInsets.zero,
+                      onPressed: () {
+
+
+                  int indexa=(1000*i+11);
+                        setState(() {
+                          index = indexa;
+                        });
+                      },
+                      child:
+                      Text(
+                        (team1g.toString() +
+                            "-" +
+                            team2g.toString()),
+                        style: TextStyle(
+                            fontFamily: 'OpenSans',
+                            fontSize: 25,
+                            fontWeight: FontWeight.w600,color: scorecolor),
+                      ),),
+                FlatButton(padding: EdgeInsets.zero,
                   onPressed: () {
                     int indexa = 3 +
                         pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
@@ -363,7 +360,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ])));
         }
-      }
+
     }
     String PageName = "";
 
@@ -500,13 +497,387 @@ class _MainScreenState extends State<MainScreen> {
       ));
     }
 
-    if (PageName == "Matches") {
+    if (PageName == "Matches" && matchstatson==0) {
       return Center(
         child: new ListView(
             shrinkWrap: true,
             padding: const EdgeInsets.all(20.0),
             children: resultsrow),
       );
+    }
+    if(PageName=="Matches" && matchstatson==1){
+      int i=week;
+      Match m=pd.CurrentLeague.Results[i];
+      double rfontsize=15;
+      int team1g=0;
+      Team t1= pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+      pd.CurrentLeague.getTeamID(
+          m.homeTeam)])];
+      Team t2= pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+      pd.CurrentLeague.getTeamID(
+          m.awayTeam)])];
+      bool realresultswilldisplay=m.result!=Result.EMPTY;
+      bool pdresultswilldisplay=(i>pd.CurrentLeague.Teams.length*3);
+      int team2g=0;
+      if(!realresultswilldisplay){team1g=m.machineHomeScore;team2g=m.machineAwayScore;}
+      else{team1g=m.homeScore;team2g=m.awayScore;}
+      final MatchDatas = <TableRow>[];
+      if(pdresultswilldisplay){
+      MatchDatas.add(TableRow(decoration: BoxDecoration(color:Colors.black),
+        children: [                          Column(children: [
+          Text(
+            'Event',
+            style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+          )
+        ]),
+          Column(children: [
+            Text(
+              'Home',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize),
+            )
+          ]),
+          Column(children: [
+            Text(
+              'Draw',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize),
+            )
+          ]),
+          Column(children: [
+            Text(
+              'Away',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize),
+            )
+          ])]
+      ));
+      MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'Team Name',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                m.homeTeam,
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                " ",
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                m.awayTeam,
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));}
+      if(realresultswilldisplay){MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'Result',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                resConv(m.result),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                resConv(m.result),
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                resConv(m.result),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));}
+      if(pdresultswilldisplay){
+      MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'MP Result',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                resConv(m.machinePredict),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                resConv(m.machinePredict),
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                resConv(m.machinePredict),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));
+      MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'MP Ratios',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                perc(m.machineHomeRatio),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                perc(m.machineDrawRatio),
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                perc(m.machineAwayRatio),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));
+      MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'MP Win Probs',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                perc(m.machineWinHome),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                " ",
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                perc(m.machineWinAway),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));}
+      if(realresultswilldisplay){MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'Real Score',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+              m.homeScore.toString(),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+"",
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+            m.awayScore.toString(),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));}
+      if(pdresultswilldisplay){
+      MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'MP Goals',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                m.machineHomeScore.toString(),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                " ",
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                m.machineAwayScore.toString(),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));
+      MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'MP Goal Ratios',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                (((10000*m.homeTeamGoalRatio).toInt())/10000).toString(),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                " ",
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                (((10000*m.awayTeamGoalRatio).toInt())/10000).toString(),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));
+      MatchDatas.add(TableRow(
+          children: [                          Column(children: [
+            Text(
+              'Team Predictability',
+              style: TextStyle(color: Colors.red, fontSize: rfontsize,fontWeight: FontWeight.bold),
+            )
+          ]),
+            Column(children: [
+              Text(
+                perc(pd.TeamPredictablility(m.homeTeam)),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                " ",
+                style: TextStyle(color: Colors.red,fontSize: rfontsize),
+              )
+            ]),
+            Column(children: [
+              Text(
+                perc(pd.TeamPredictablility(m.awayTeam)),
+                style: TextStyle(color: Colors.red, fontSize: rfontsize),
+              )
+            ])]
+      ));
+
+      }
+
+
+
+      return Center(
+        child:
+
+        Column(children: [
+            Container(
+            height: 140,
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+            child:
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              FlatButton(padding: EdgeInsets.zero,
+                onPressed: () {
+                  int indexa = 3 +
+                      pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+                      pd.CurrentLeague.getTeamID(
+                          m.homeTeam)]) *
+                          10 +
+                      50 * 10000;
+                  setState(() {
+                    index = indexa;
+                  });
+                },
+                child: Image.asset(
+                    pd
+                        .CurrentLeague
+                        .Teams[
+                    pd.CurrentLeague.getTeamID(m.homeTeam)]
+                        .logodir,
+                    width: 110),
+              ), FlatButton(padding: EdgeInsets.zero,
+                onPressed: () {
+
+
+                  int indexa=(1000*i+11);
+                  setState(() {
+                    index = indexa;
+                  });
+                },
+                child:
+                Text(
+                  (team1g.toString() +
+                      "-" +
+                      team2g.toString()),
+                  style: TextStyle(
+                      fontFamily: 'OpenSans',
+                      fontSize: 25,
+                      fontWeight: FontWeight.w600),
+                ),),
+              FlatButton(padding: EdgeInsets.zero,
+                onPressed: () {
+                  int indexa = 3 +
+                      pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+                      pd.CurrentLeague.getTeamID(
+                          m.awayTeam)]) *
+                          10 +
+                      50 * 10000;
+                  setState(() {
+                    index = indexa;
+                  });
+                },
+                child: Image.asset(
+                  pd
+                      .CurrentLeague
+                      .Teams[pd.CurrentLeague.getTeamID(m.awayTeam)]
+                      .logodir,
+                  width: 110,
+                ),
+              ),
+            ])),
+
+          ListView(padding: EdgeInsets.all(0.0),physics: const NeverScrollableScrollPhysics()
+            ,scrollDirection: Axis.vertical, shrinkWrap: true,cacheExtent: 50*18.0, children: [
+              Table(
+                  columnWidths: {
+                    0: FlexColumnWidth(1),
+                    1: FlexColumnWidth(1),
+                    2: FlexColumnWidth(1),
+                    3: FlexColumnWidth(1),
+
+                  },
+                  border: TableBorder.all(
+                    color: Colors.black,
+                    style: BorderStyle.solid,
+                    width: 1,
+                  ),
+                  children: MatchDatas
+
+                    )])]));
     }
     if (PageName == "Home") {
       Accuracy ac = pd.giveAccuracy(pd.CurrentLeague, pd.key);
@@ -571,111 +942,110 @@ class _MainScreenState extends State<MainScreen> {
           ]));
     }
     if (PageName == "Teams") {
-      for (int i = 0; i < teamMatches.length; i++) {
-        Match m = teamMatches[i];
-        if (m.result != Result.EMPTY) {
-          teamcont.add(Container(
-              height: 140,
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FlatButton(
-                  onPressed: () {
-                    int indexa = 3 +
-                        pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
-                                pd.CurrentLeague.getTeamID(m.homeTeam)]) *
-                            10 +
-                        50 * 10000;
-                    setState(() {
-                      index = indexa;
-                    });
-                  },
-                  child: Image.asset(
-                      pd
-                          .CurrentLeague
-                          .Teams[pd.CurrentLeague.getTeamID(m.homeTeam)]
-                          .logodir,
-                      width: 110),
-                ),
-                Text(
-                  (m.homeScore.toString() + "-" + m.awayScore.toString()),
-                  style: TextStyle(
-                      fontFamily: 'OpenSans',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    int indexa = 3 +
-                        pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
-                                pd.CurrentLeague.getTeamID(m.awayTeam)]) *
-                            10 +
-                        50 * 10000;
-                    setState(() {
-                      index = indexa;
-                    });
-                  },
-                  child: Image.asset(
-                    pd.CurrentLeague
-                        .Teams[pd.CurrentLeague.getTeamID(m.awayTeam)].logodir,
-                    width: 110,
-                  ),
-                ),
-              ])));
-        } else {
-          teamcont.add(Container(
-              height: 140,
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FlatButton(
-                  onPressed: () {
-                    int indexa = 3 +
-                        pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
-                                pd.CurrentLeague.getTeamID(m.homeTeam)]) *
-                            10 +
-                        50 * 10000;
-                    setState(() {
-                      index = indexa;
-                    });
-                  },
-                  child: Image.asset(
-                      pd
-                          .CurrentLeague
-                          .Teams[pd.CurrentLeague.getTeamID(m.homeTeam)]
-                          .logodir,
-                      width: 110),
-                ),
-                Text(
-                  (m.machineHomeScore.toString() +
-                      "-" +
-                      m.machineAwayScore.toString()),
-                  style: TextStyle(
-                      fontFamily: 'OpenSans',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    int indexa = 3 +
-                        pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
-                                pd.CurrentLeague.getTeamID(m.awayTeam)]) *
-                            10 +
-                        50 * 10000;
-                    setState(() {
-                      index = indexa;
-                    });
-                  },
-                  child: Image.asset(
-                    pd.CurrentLeague
-                        .Teams[pd.CurrentLeague.getTeamID(m.awayTeam)].logodir,
-                    width: 110,
-                  ),
-                ),
-              ])));
+      for (int i = 0; i < pd.CurrentLeague.Results.length; i++) {
+        Match m = pd.CurrentLeague.Results[i];
+        double rfontsize=15;
+        Team t1= pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+        pd.CurrentLeague.getTeamID(
+            m.homeTeam)])];
+        Team t2= pd.CurrentLeague.Teams[pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+        pd.CurrentLeague.getTeamID(
+            m.awayTeam)])];
+        bool realresultswilldisplay=m.result!=Result.EMPTY;
+        bool pdresultswilldisplay=(i>pd.CurrentLeague.Teams.length*3);
+        int team1g=0;
+        int team2g=0;
+        Color scorecolor=Colors.black;
+        bool matchisplayed=m.result != Result.EMPTY;
+        bool pdcorrect=m.result==m.machinePredict;
+        if( matchisplayed && pdcorrect && pdresultswilldisplay){scorecolor=Colors.green.shade500;}
+        else if( matchisplayed && !pdcorrect && pdresultswilldisplay){scorecolor=Colors.red.shade500;}
+        else if( !matchisplayed ){scorecolor=Colors.blue.shade500;}
+
+        if(matchisplayed){
+          team1g=m.homeScore;
+          team2g=m.awayScore;
         }
+        else{
+          team1g=m.machineHomeScore;
+          team2g=m.machineAwayScore;
+        }
+
+        if(m.homeTeam== currentTeam.teamName || m.awayTeam== currentTeam.teamName){
+          teamcont.add(Container(
+              height: 140,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Container(
+                      height: 140,
+                      color: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+                      child:
+                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        FlatButton(padding: EdgeInsets.zero,
+                          onPressed: () {
+                            int indexa = 3 +
+                                pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+                                pd.CurrentLeague.getTeamID(
+                                    m.homeTeam)]) *
+                                    10 +
+                                50 * 10000;
+                            setState(() {
+                              index = indexa;
+                            });
+                          },
+                          child: Image.asset(
+                              pd
+                                  .CurrentLeague
+                                  .Teams[
+                              pd.CurrentLeague.getTeamID(m.homeTeam)]
+                                  .logodir,
+                              width: 110),
+                        ),
+                        FlatButton(padding: EdgeInsets.zero,
+                          onPressed: () {
+
+
+                            int indexa=(1000*i+11);
+                            setState(() {
+                              index = indexa;
+                            });
+                          },
+                          child:
+                          Text(
+                            (team1g.toString() +
+                                "-" +
+                                team2g.toString()),
+                            style: TextStyle(
+                                fontFamily: 'OpenSans',
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,color: scorecolor),
+                          ),),
+                        FlatButton(padding: EdgeInsets.zero,
+                          onPressed: () {
+                            int indexa = 3 +
+                                pd.CurrentLeague.getTeamIndex(pd.CurrentLeague.Teams[
+                                pd.CurrentLeague.getTeamID(
+                                    m.awayTeam)]) *
+                                    10 +
+                                50 * 10000;
+                            setState(() {
+                              index = indexa;
+                            });
+                          },
+                          child: Image.asset(
+                            pd
+                                .CurrentLeague
+                                .Teams[pd.CurrentLeague.getTeamID(m.awayTeam)]
+                                .logodir,
+                            width: 110,
+                          ),
+                        ),
+
+              ]))])));}
+
       }
       currentTeam = pd.CurrentLeague.Teams[team];
       int teamrank = 0;
@@ -684,6 +1054,24 @@ class _MainScreenState extends State<MainScreen> {
           teamrank = i;
         }
       }
+      int correct=0;
+      int wrong=0;
+      for(int i=0;i<pd.CurrentLeague.Results.length;i++){
+        Match m=pd.CurrentLeague.Results[i];
+        if(i>pd.CurrentLeague.Teams.length*3){
+        if(m.homeTeam==currentTeam.teamName || m.awayTeam==currentTeam.teamName){
+          if(m.result==m.machinePredict){
+            correct+=1;
+
+          }else{wrong+=1;
+
+        }
+        }
+
+      }}
+
+
+
       return Center(
           child: new ListView(
         shrinkWrap: true,
@@ -738,6 +1126,19 @@ class _MainScreenState extends State<MainScreen> {
           Center(
             child: SizedBox(
               height: 5,
+            ),
+          ),
+
+          Center(
+
+            child: Text(
+              "Result Predictability: " +
+                 perc(pd.TeamPredictablility(currentTeam.teamName)),
+              style: TextStyle(
+                  fontSize: 18.0,
+                  color: Colors.black45,
+                  letterSpacing: 2.0,
+                  fontWeight: FontWeight.w300),
             ),
           ),
           Center(

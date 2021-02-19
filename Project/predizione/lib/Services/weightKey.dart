@@ -51,5 +51,18 @@ class weightKey {
     acc.key = crKey;
     return crKey;
   }
-
+  weightKey randomKey() {
+    weightKey toReturn = new weightKey(0,0,0,0,0,0,0,0,0,0);
+    toReturn.home = 100.0;
+    toReturn.draw = 100.0;
+    toReturn.away = 100.0;
+    toReturn.powerRank = getRandom(-1000, 1000)/100;
+    toReturn.resultPerc = getRandom(-1000, 1000)/100;
+    toReturn.pyEx = getRandom(-1000, 1000)/100;
+    toReturn.pyExSide = getRandom(-1000, 1000)/100;
+    toReturn.pattern1 = 0.0;
+    toReturn.pattern3 = 0.0;
+    toReturn.pattern5 = 0.0;
+    return toReturn;
+  }
 }

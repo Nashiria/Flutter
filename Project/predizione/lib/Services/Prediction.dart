@@ -27,6 +27,7 @@ class Prediction {
   bool showodds=false;
   bool showprediction=false;
   bool patterns=false;
+  List<int> Indexes=new List<int>();
   List<String> LeagueNames;
   Team getTeam(String teamName){
     Team toReturn=new Team();
@@ -209,7 +210,11 @@ class Prediction {
   }
   static int count(String str, String target) {return ((str.length - str.replaceAll(target, "").length) / target.length).toInt();}
   static int getRandom(int min, int max){return  (new Random().nextInt(max - min) + min).toInt();}
-  static int poisson(double mean) {int r = 0;Random ran = new Random();double a = ran.nextDouble();double p = exp(-mean);while (a > p) {r++;a = a - p;p = p * mean / r;}return r;}
+  //static int poisson(double mean) {int r = 0;Random ran = new Random();double a = ran.nextDouble();double p = exp(-mean);while (a > p) {r++;a = a - p;p = p * mean / r;}return r;}
+  static int poisson(double mean) {
+    return mean.round().ceil();
+
+  }
   Match AddOdd(Match m, Odd o,double d){
     if(m.machineWinHome==null){m.machineWinHome=0;}if(m.machineWinAway==null){m.machineWinAway=0;}
     m.machineWinHome+=o.hw*d;m.machineWinAway+=o.aw*d;return m;}
@@ -286,6 +291,8 @@ class Prediction {
     //print("hometeam_AttackStrenght "+hometeam_AttackStrenght+" = ( "+hometeam_HomeGoals+" / "+ hometeam_HomeMatches+ " ) * ( "+league_HomeGoals+" / "+league_TotalMatch+" ) ");
     int expectedGoals1=0;
     int expectedGoals2=0;
+    m.homeTeamGoalRatio=hometeam_PossibleGoals;
+    m.awayTeamGoalRatio=awayteam_PossibleGoals;
     int trys=50;
     if(((m.result==Result.EMPTY) && (m.machinePredict==Result.H))||(m.result==Result.H)){
       while(expectedGoals1<=expectedGoals2){
@@ -326,6 +333,10 @@ class Prediction {
     double hProb=m.machineHomeRatio*k.home;
     double dProb=m.machineDrawRatio*k.draw;
     double aProb=m.machineAwayRatio*k.away;
+    double total=hProb+dProb+aProb;
+    hProb=hProb/total;
+    dProb=dProb/total;
+    aProb=aProb/total;
     if(hProb>dProb && hProb>aProb){m.machinePredict=Result.H;}
     if(dProb>hProb && dProb>aProb){m.machinePredict=Result.D;}
     if(aProb>dProb && aProb>hProb){m.machinePredict=Result.A;}
@@ -344,7 +355,7 @@ class Prediction {
 
     for(int i = 0; i < league.Results.length; ++i) {
       Match curr = league.Results[i];
-      bool guessingstart=(i>league.Teams.length*6);
+      bool guessingstart=(i>league.Teams.length*3);
       if(guessingstart){ if (curr.result!=Result.EMPTY && curr.machinePredict!=Result.EMPTY) {
         curr.CorrectResult = curr.machinePredict==curr.result;
         if (curr.machinePredict==Result.D) {
@@ -625,7 +636,7 @@ class Prediction {
   }
   void UseKey(){
     CurrentLeague=new League();
-    Accuracy acc=new Accuracy("",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,randomKey()).newAcc();
+    Accuracy acc=new Accuracy("Mahalle Ligi",2020,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,randomKey()).newAcc();
     acc.key=key;
     CurrentLeague.leagueName=Matches[0].League;
     CurrentLeague.season=Matches[0].Year;
@@ -641,10 +652,11 @@ class Prediction {
   }
   void SimulateLeague(){
     CurrentLeague=new League();
-    Accuracy acc=new Accuracy("",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,this.key);
+    Accuracy acc=new Accuracy("Mahalle Ligi",2020,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,this.key);
     acc.key=key;
-    CurrentLeague.leagueName=Matches[0].League;
-    CurrentLeague.season=Matches[0].Year;
+
+    CurrentLeague.leagueName="Mahalle Ligi";
+    CurrentLeague.season=2020;
     for(int i=0;i<Matches.length;i++){
       Match m=Matches[i];
       m=predictMatch(m, key);
@@ -667,73 +679,141 @@ class Prediction {
     }
     CurrentLeague.Teams=Templist;
     acc=giveAccuracy(CurrentLeague, key);
-
+    print(Matches.length.toString());
     database sq=new database();
     sq.uploadAccuracy(acc);
     sq.uploadResults(CurrentLeague);
     sq.uploadStandings(CurrentLeague);
+    print("aaaaaaaaaaa");
   }
+   void PrintkeyAccuracy(Accuracy curAccuracy) {
+     print("Accuracy Ratios: Total:%" +
+         perc(curAccuracy.resultRatio * 100.0).toString() + " H:%" +
+         perc(curAccuracy.homeRatio * 100.0).toString() + " D:%" +
+         this.perc(curAccuracy.drawRatio * 100.0).toString() + " A:%" +
+         this.perc(curAccuracy.awayRatio * 100.0).toString() + " H:" +
+         this.perc(curAccuracy.key.home).toString() + " D:" +
+         this.perc(curAccuracy.key.draw).toString() + " A:" +
+         this.perc(curAccuracy.key.away).toString());
+   }
+   double TeamPredictablility(String currentTeam){
+    int correct=0;
+    int wrong=0;
+     for(int i=0;i<CurrentLeague.Results.length;i++){
+       Match m=CurrentLeague.Results[i];
+       if(m.homeTeam==currentTeam || m.awayTeam==currentTeam){
+         if(m.result!=Result.EMPTY){
+           if(m.result==m.machinePredict){correct+=1;}
+           else{wrong+=1;}
+         }
+       }
+     }
+     return correct/(wrong+correct);
+   }
   void findBetterKey(){
-    Accuracy acc=new Accuracy("",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,randomKey()).newAcc();
-    int alltries=0;
-    double lasth=0;
-    double lastd=0;
-    double lasta=0;
-    int count=0;
-    int currentkeytry=0;
-    double defaultmin=1.00;
-    weightKey FixKeyAcc(Accuracy acc) {
-      weightKey crKey = acc.key;
-      double hk = acc.guessedHomeRatio;
-      double dk = acc.guessedDrawRatio;
-      double ak = acc.guessedAwayRatio;
-      if (hk > dk + 0.1) {
-        crKey.draw += (acc.guessedHomeRatio - acc.guessedDrawRatio) * 30.0;
-      }
-      if (hk > ak + 0.1) {
-        crKey.away += (acc.guessedHomeRatio - acc.guessedAwayRatio) * 30.0;
-      }
-      if (ak > dk + 0.1) {
-        crKey.draw += (acc.guessedAwayRatio - acc.guessedDrawRatio) * 30.0;
-      }
-      if (ak > hk + 0.1) {
-        crKey.home += acc.guessedAwayRatio / acc.guessedHomeRatio * 30.0;
-      }
-      if (dk > ak + 0.1) {
-        crKey.away += (acc.guessedDrawRatio - acc.guessedAwayRatio) * 30.0;
-      }
-      if (dk > hk + 0.1) {
-        crKey.home += acc.guessedDrawRatio / acc.guessedHomeRatio * 30.0;
-      }
-      acc.key = crKey;
-      return crKey;
+    Accuracy acc = Accuracy(
+        'Mahalle Ligi',
+        2020,
+        0.4912,
+        0.39298245297712187,
+        38,50,46,76,68,64,114,
+        0.3333333333333333,
+        0.43859649122807015,
+        70,21,23,12,20,14,30,8,30,
+        0.2857142857142857,
+        0.7142857142857143,0.3181818181818182,
+        0.18421052631578946,0.6140350877192983,
+        0.20175438596491227,weightKey(100.0,109.47368421052632,100.0,7.0,-8.0,-9.0,2.0,0.0,0.0,0.0));
+    printkeyAccuracy(acc);
+    int alltries = 0;
+    double lasth = 0.0;
+    double lastd = 0.0;
+    double lasta = 0.0;
+    int count = 0;
+    int currentkeytry = 0;
+    double defaultmin = 1.0;
+    Accuracy maxacc=acc;
+    double reqres=0.57;
+    double reqh=0.4;
+    double reqd=0.4;
+    double reqa=0.4;
+    double lastmax=0;
+    League maxleague=new League();
+    int trycount=0;
+    while(((acc.resultRatio < reqres + 0.001 || acc.homeRatio < reqh || acc.drawRatio < reqd|| acc.awayRatio < reqa) && trycount<30000)) {
+      trycount+=1;
+      bool condition=(acc.resultRatio < reqres + 0.001 || acc.homeRatio < reqh || acc.drawRatio < reqd|| acc.awayRatio < reqa || trycount<30000);
+      ++alltries;
+      ++currentkeytry;
+      this.CurrentLeague=new League();
+      this.CurrentLeague.season = 2020;
+      this.CurrentLeague.leagueName="Mahalle Ligi";
+    for(int i = 0; i < Matches.length; ++i) {
+    Match m = Matches[i];
+    m = this.predictMatch(m, this.key);
+    this.updateMatch(this.CurrentLeague, m);
     }
-    while(acc.resultRatio<defaultmin+0.01 && alltries<1000){
-      alltries+=1;
-      currentkeytry+=1;
-      CurrentLeague=new League();
 
-      CurrentLeague.leagueName=Matches[0].League;
-      CurrentLeague.season=Matches[0].Year;
-      for(int i=0;i<Matches.length;i++){
-        Match m=Matches[0];
-        m=predictMatch(m, key);
-        updateMatch(CurrentLeague, m);
-      }
-      acc=giveAccuracy(CurrentLeague, key);
-      if(defaultmin!=1){printkeyAccuracy(acc);}
-      key=FixKeyAcc(acc);
+    acc = this.giveAccuracy(this.CurrentLeague, this.key);
 
-      count+=1;
-      if(acc.resultRatio>defaultmin+0.01 && acc.resultRatio>0.4){print("Couldn't find a better key."); break;}
-      if(defaultmin==1){defaultmin=findMaxAcc(CurrentLeague.leagueName, CurrentLeague.season).resultRatio;}
-      if(lasth!=acc.guessedHomeRatio ||lastd!=acc.guessedDrawRatio ||lasta!=acc.guessedAwayRatio ){lasth=acc.guessedHomeRatio;lastd=acc.guessedDrawRatio;lasta=acc.guessedAwayRatio;count-=1;}
-      if(count>5 || acc.resultRatio<0.30 || currentkeytry>40){key=randomKey();count=0;currentkeytry=0;}
+    ++count;
+
+    if (defaultmin == 1.0) {
+    defaultmin = this.findMaxAcc(this.CurrentLeague.leagueName, this.CurrentLeague.season).resultRatio;
     }
-    database sq=new database();
-    sq.uploadAccuracy(acc);
-    sq.uploadResults(CurrentLeague);
-    sq.uploadStandings(CurrentLeague);
+    if (condition==true){
+    if (lasth != acc.guessedHomeRatio || lastd != acc.guessedDrawRatio || lasta != acc.guessedAwayRatio) {
+    lasth = acc.guessedHomeRatio;
+    lastd = acc.guessedDrawRatio;
+    lasta = acc.guessedAwayRatio;
+    --count;
+    this.key = weightKey(0,0,0,0,0,0,0,0,0,0).FixKeyAcc(acc);
+    }
+
+    if (count > 5 || acc.resultRatio < 0.3 || currentkeytry > 40) {
+    this.key = weightKey(0,0,0,0,0,0,0,0,0,0).randomKey();
+    count = 0;
+    currentkeytry = 0;
+    }
+    }
+      if(acc.homeRatio > reqh && acc.drawRatio > reqd && acc.awayRatio > reqa && acc.resultRatio>lastmax){
+        print("");
+        PrintkeyAccuracy(acc);
+        print("Home:"+acc.key.home.toString()+" Draw:"+acc.key.draw.toString()
+            +" Away:"+acc.key.away.toString()+" powerRank:"+acc.key.powerRank.toString()
+            +" resultPerc:"+acc.key.resultPerc.toString()+" pyEx:"+acc.key.pyEx.toString()
+            +" pyExSide:"+acc.key.pyExSide.toString()+" pattern1:"+acc.key.pattern1.toString()
+            +" pattern3:"+acc.key.pattern3.toString()+" pattern5:"+acc.key.pattern5.toString());
+        lastmax=acc.resultRatio;
+        maxacc=acc;
+        maxleague=this.CurrentLeague;
+      }
+    }
+    acc=maxacc;
+    this.CurrentLeague=maxleague;
+    this.Keylist.add(acc);
+
+    print("");
+    print("Home:"+acc.key.home.toString()+" Draw:"+acc.key.draw.toString()
+        +" Away:"+acc.key.away.toString()+" powerRank:"+acc.key.powerRank.toString()
+        +" resultPerc:"+acc.key.resultPerc.toString()+" pyEx:"+acc.key.pyEx.toString()
+        +" pyExSide:"+acc.key.pyExSide.toString()+" pattern1:"+acc.key.pattern1.toString()
+        +" pattern3:"+acc.key.pattern3.toString()+" pattern5:"+acc.key.pattern5.toString());
+    List<Team> Templist=new List<Team>();
+    int teamcount=CurrentLeague.Teams.length;
+    lastmax=acc.resultRatio;
+    while(Templist.length!=teamcount){
+      int indexofmaxteam=0;
+      int valueofmaxteam=0;
+      for(int i=0;i<CurrentLeague.Teams.length;i++){
+        CurrentLeague.Teams[i].points=3*CurrentLeague.Teams[i].win+CurrentLeague.Teams[i].draws;
+        int valueofcurrentteam=1000*(CurrentLeague.Teams[i].points)+(CurrentLeague.Teams[i].totalGoals-CurrentLeague.Teams[i].totalConcede);
+        if(valueofcurrentteam>valueofmaxteam){valueofmaxteam=valueofcurrentteam;indexofmaxteam=i;}
+      }
+      Templist.add(CurrentLeague.Teams[indexofmaxteam]);
+      CurrentLeague.Teams.removeAt(indexofmaxteam);
+    }
+    CurrentLeague.Teams=Templist;
   }
 
   weightKey randomKey() {

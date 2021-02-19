@@ -33,6 +33,8 @@ class Match {
   bool CorrectHomeScore;
   bool CorrectAwayScore;
   bool CorrectGoalCount;
+  double homeTeamGoalRatio;
+  double awayTeamGoalRatio;
   Result fromString(String s){
     if(s=="F"){return Result.EMPTY;}
     if(s=="H"){return Result.H;}

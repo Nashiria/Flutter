@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:predizione/Services/weightKey.dart';
 import 'Screens/MainScreen.dart';
 import 'Services/Prediction.dart';
 import 'Services/database.dart';
@@ -16,9 +17,7 @@ class MyApp extends StatelessWidget {
     Prediction pd=new Prediction();
     database db=new database();
     pd=database().loadDatabase();
-    pd=database().matchList(pd,0,50);
     pd.key=pd.findMaxAcc("Mahalle Ligi", 2020).key;
-    pd.SimulateLeague();
     return MaterialApp(
 
           routes: {
@@ -28,12 +27,21 @@ class MyApp extends StatelessWidget {
       home: Builder(
 
         builder: (context) => Center(
-          child: RaisedButton(
-            child: Text("Start"),
-            onPressed: () => Navigator.pushNamed(context, MainScreen.routeName,arguments: pd),
-          ),
-        ),
-      ),
+          child:
+            RaisedButton(
+                child: Text("Start"),
+                onPressed: () {
+                  pd=database().matchList(pd,  "aaaa");
+                  pd.findBetterKey();
+                  Navigator.pushNamed(context, MainScreen.routeName,arguments: pd);
+                } )))
+
+
+
+
+
+
+
     );
 
   }
