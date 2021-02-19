@@ -11,5 +11,5 @@ Creating a quiz app
 Creating a quiz app using opentdb
 ### [Assignment 5](https://github.com/Nashiria/Flutter/tree/main/Assignment%205)
 ToDo App
-### [Project Predizione](https://github.com/Nashiria/Flutter/tree/main/Project/predizione)
+### [Project Predizione](https://github.com/Nashiria/Flutter/tree/main/Project)
 Project Predizione (Prediction) uses past match data to predict next matches for league. 
